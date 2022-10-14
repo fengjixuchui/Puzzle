@@ -40,7 +40,7 @@ namespace puzzle
         }
     protected:
 
-        inline virtual void DoSet(std::type_index index,puzzle::IServiceObject *service) override
+        inline virtual void DoSetService(std::type_index index,puzzle::IServiceObject *service) override
         {
             this->services_.emplace(index,std::move(service));
         }
@@ -124,13 +124,17 @@ namespace puzzle
                     ,typename _Check = decltype(_Provider{std::declval<_Args>()...})>
         inline Self &AddProvider(_Args &&...args)
         {
-            puzzle::IServiceProvider *p{new _Provider{std::forward<_Args>(args)...}};
+            puzzle::IServiceProvider *provider{new _Provider{std::forward<_Args>(args)...}};
+            if(!provider)
+            {
+                throw std::bad_alloc{};
+            }
             try
             {
-                auto result{this->providers_.emplace(std::type_index{typeid(_T)},p)};
+                auto result{this->providers_.emplace(std::type_index{typeid(_T)},provider)};
                 if(!result.second)
                 {
-                    delete p;
+                    delete provider;
                     throw puzzle::ProviderExistError{};
                 }
                 return *this;
@@ -139,7 +143,7 @@ namespace puzzle
             {
                 throw;
             }
-            delete p;
+            delete provider;
         }
 
         template<typename _T>

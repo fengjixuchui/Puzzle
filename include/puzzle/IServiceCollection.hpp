@@ -2,9 +2,10 @@
 #ifndef _PUZZLE_ISERVICECOLLECTION_HPP
 #define _PUZZLE_ISERVICECOLLECTION_HPP
 
-#include <memory>
+#include <exception>
 #include <typeinfo>
 #include <typeindex>
+#include <type_traits>
 
 #include "IServiceObject.hpp"
 
@@ -16,7 +17,7 @@ namespace puzzle
         using Self = puzzle::IServiceCollection;
     protected:
 
-        virtual void DoSet(std::type_index index,puzzle::IServiceObject *object) = 0;
+        virtual void DoSetService(std::type_index index,puzzle::IServiceObject *object) = 0;
 
         virtual puzzle::IServiceObject *DoGetService(const std::type_index &index) = 0;
 
@@ -35,11 +36,18 @@ namespace puzzle
     
         virtual ~IServiceCollection() noexcept = default;
 
-        // template<typename _T>
-        // inline void SetService(std::unique_ptr<puzzle::IServiceObject> service)
-        // {
-        //     this->DoSet(std::type_index{typeid(_T)},std::move(service));
-        // }
+        template<typename _T,typename _Impl,typename ..._Args
+                            ,typename _CheckBase = std::enable_if<std::is_base_of<puzzle::IServiceObject,_Impl>::value>::type
+                            ,typename _Check = decltype(_Impl{std::declval<_Args>()...})>
+        inline void SetService(_Args &&...args)
+        {
+            puzzle::IServiceObject *service{new _Impl{std::forward<_Args>(args)...}};
+            if(!service)
+            {
+                throw std::bad_alloc{};
+            }
+            this->DoSetService(std::type_index{typeid(_T)},service);
+        }
 
         template<typename _T>
         inline _T *GetService()

@@ -2,6 +2,7 @@
 #ifndef _PUZZLE_ISERVERPROVIDER_HPP
 #define _PUZZLE_ISERVERPROVIDER_HPP
 
+#include <cassert>
 #include <cstring>
 #include <typeinfo>
 
@@ -34,6 +35,7 @@ namespace puzzle
         template<typename _T>
         inline _T Provide(puzzle::IServiceCollection *services)
         {
+            assert(services != nullptr);
             char buffer[sizeof(_T)];
             _T *p = reinterpret_cast<_T*>(this->DoProvide(services,typeid(_T),buffer));
             return *p;
@@ -41,6 +43,8 @@ namespace puzzle
 
         inline void *Provide(puzzle::IServiceCollection *services,const std::type_info &type,char *buffer)
         {
+            assert(services != nullptr);
+            assert(buffer != nullptr);
             return this->DoProvide(services,type,buffer);
         }
 

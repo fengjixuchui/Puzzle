@@ -33,7 +33,9 @@ namespace puzzle
         {
             char buf[sizeof(_T)] = {0};
             _T *p{reinterpret_cast<_T*>(this->DoBuildService(typeid(_T),buf))};
-            return *p;
+            _T obj{std::move(*p)};
+            p->~_T();
+            return obj;
         }
     };   
 }

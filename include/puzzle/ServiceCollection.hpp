@@ -11,6 +11,7 @@
 #include "ProviderNotFoundError.hpp"
 #include "ProviderExistError.hpp"
 #include "TransientObjectProvider.hpp"
+#include "TransientInterfaceProvider.hpp"
 
 namespace puzzle
 {
@@ -117,7 +118,9 @@ namespace puzzle
         {
             char buf[sizeof(_T)] = {0};
             _T *p{reinterpret_cast<_T>(this->DoBuildService(&service,typeid(_T),buf))};
-            return *p;
+            _T obj{std::move(*p)};
+            p->~_T();
+            return obj;
         }
 
         template<typename _T>
@@ -158,6 +161,12 @@ namespace puzzle
         inline Self &AddTransient()
         {
             return this->AddProvider<_T,puzzle::TransientObjectProvider<_T>>(*this);
+        }
+
+        template<typename _Interface,typename _Impl>
+        inline Self &AddTransient()
+        {
+            return this->AddProvider<puzzle::TransientPtr<_Interface>,puzzle::TransientInterfaceProvider<_Interface,_Impl>>(*this);
         }
     };
 }

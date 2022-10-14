@@ -48,12 +48,29 @@ namespace puzzle
             return ServiceConstructor<_U,_Types...,puzzle::PlaceHolder>::ConstructService(builder);
         }
 
+        template<typename _U = _T,typename _Check = decltype(_T{puzzle::InjectTag,std::declval<_Types>()...})>
+        static _U *InternalConstructServicePtr(puzzle::IServiceBuilder *builder,int)
+        {
+            return new _U{puzzle::InjectTag,MakePlaceHolder<_Types>(builder)...};
+        }
+
+        template<typename _U = _T,typename _Check = void>
+        static _U *InternalConstructServicePtr(puzzle::IServiceBuilder *builder,...)
+        {
+            return ServiceConstructor<_U,_Types...,puzzle::PlaceHolder>::ConstructServicePtr(builder);
+        }
     public:
 
         template<typename _U = _T>
         static _U ConstructService(puzzle::IServiceBuilder *builder)
         {
             return InternalConstructService(builder,0);
+        }
+
+        template<typename _U = _T>
+        static _U *ConstructServicePtr(puzzle::IServiceBuilder *builder)
+        {
+            return InternalConstructServicePtr(builder,0);
         }
 
         static constexpr std::size_t ParameterCount{ServiceConstructor<_T,_Types...>::InternalGetParameterCount(0)};
@@ -88,12 +105,30 @@ namespace puzzle
             return ServiceConstructor<_U,puzzle::PlaceHolder>::ConstructService(builder);
         }
 
+        template<typename _U = _T,typename _Check = decltype(_T{puzzle::InjectTag})>
+        static _U *InternalConstructServicePtr(puzzle::IServiceBuilder *builder,int)
+        {
+            return new _U{puzzle::InjectTag};
+        }
+
+        template<typename _U = _T,typename _Check = void>
+        static _U *InternalConstructServicePtr(puzzle::IServiceBuilder *builder,...)
+        {
+            return ServiceConstructor<_U,puzzle::PlaceHolder>::ConstructServicePtr(builder);
+        }
+
     public:
 
         template<typename _U = _T>
         static _U ConstructService(puzzle::IServiceBuilder *builder)
         {
             return InternalConstructService(builder,0);
+        }
+
+        template<typename _U = _T>
+        static _U *ConstructServicePtr(puzzle::IServiceBuilder *builder)
+        {
+            return InternalConstructServicePtr(builder,0);
         }
 
         static constexpr std::size_t ParameterCount{ServiceConstructor<_T>::InternalGetParameterCount(0)};

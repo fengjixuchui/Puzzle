@@ -12,15 +12,32 @@ namespace puzzle
     class TransientInterfaceProvider:public puzzle::ITransientServiceProvider<puzzle::TransientPtr<_Interface>>
     {
     private:
-        using Self = TransientInterfaceProvider;
+        using Self = puzzle::TransientInterfaceProvider<_Interface,_Impl>;
     
+        puzzle::IServiceBuilder *builder_;
+
+        inline virtual puzzle::TransientPtr<_Interface> *DoProvide(puzzle::TransientPtr<_Interface> *buffer) override
+        {
+            _Interface *p{puzzle::ServiceConstructor<_Impl>::ConstructServicePtr(this->builder_)};
+            if(!p)
+            {
+                throw std::bad_alloc{};
+            }
+            return ::new(buffer) puzzle::TransientPtr<_Interface>{p};
+        }
     public:
     
-        TransientInterfaceProvider();
+        explicit TransientInterfaceProvider(puzzle::IServiceBuilder &builder)
+            :builder_(&builder)
+        {}
     
-        TransientInterfaceProvider(const Self &other);
+        TransientInterfaceProvider(const Self &other) = default;
     
-        TransientInterfaceProvider(Self &&other) noexcept;
+        TransientInterfaceProvider(Self &&other) noexcept
+            :builder_(other.builder_)
+        {
+            other.builder_ = nullptr;
+        }
     
         inline Self &operator=(const Self &other)
         {
@@ -32,7 +49,15 @@ namespace puzzle
             return *this;
         }
     
-        Self &operator=(Self &&other) noexcept;
+        inline Self &operator=(Self &&other) noexcept
+        {
+            if(this != std::addressof(other))
+            {
+                this->builder_ = other.builder_;
+                other.builder_ = nullptr;
+            }
+            return *this;
+        }
     
         ~TransientInterfaceProvider() noexcept = default;
     

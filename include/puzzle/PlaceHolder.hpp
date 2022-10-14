@@ -61,6 +61,17 @@ namespace puzzle
         {
             return this->builder_->BuildService<_T>();
         }
+
+        inline operator puzzle::IServiceBuilder*() const noexcept
+        {
+            return this->builder_;
+        }
+
+        inline operator puzzle::IServiceBuilder&() const noexcept
+        {
+            assert(this->builder_ != nullptr);
+            return *this->builder_;
+        }
     };
 }
 

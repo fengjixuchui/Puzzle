@@ -38,7 +38,9 @@ namespace puzzle
             assert(services != nullptr);
             char buffer[sizeof(_T)];
             _T *p = reinterpret_cast<_T*>(this->DoProvide(services,typeid(_T),buffer));
-            return *p;
+            _T obj{std::move(*p)};
+            p->~_T();
+            return obj;
         }
 
         inline void *Provide(puzzle::IServiceCollection *services,const std::type_info &type,char *buffer)

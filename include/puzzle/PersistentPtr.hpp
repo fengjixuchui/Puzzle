@@ -12,7 +12,7 @@ namespace puzzle
     private:
         using Self = PersistentPtr;
     
-        _T ptr_;
+        _T *ptr_;
     public:
         explicit PersistentPtr(_T &obj)
             :ptr_(&obj)
@@ -46,6 +46,16 @@ namespace puzzle
         inline const Self &Const() const noexcept
         {
             return *this;
+        }
+
+        inline _T &operator*() const noexcept
+        {
+            return *this->ptr_;
+        }
+
+        inline _T *operator->() const noexcept
+        {
+            return this->ptr_;
         }
     };
 }

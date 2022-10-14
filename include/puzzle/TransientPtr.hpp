@@ -13,7 +13,7 @@ namespace puzzle
     private:
         using Self = puzzle::TransientPtr<_T>;
 
-        _T ptr_;
+        _T *ptr_;
     public:
 
         TransientPtr()
@@ -24,7 +24,7 @@ namespace puzzle
             :ptr_(ptr)
         {}
 
-        TransientPtr(const Self &other) = default;
+        TransientPtr(const Self &other) = delete;
 
         TransientPtr(Self &&other) noexcept
             :ptr_(other.ptr_)
@@ -32,15 +32,7 @@ namespace puzzle
             other.ptr_ = nullptr;
         }
 
-        inline Self &operator=(const Self &other)
-        {
-            if(this != std::addressof(other))
-            {
-                Self tmp{other};
-                std::swap(tmp,*this);
-            }
-            return *this;
-        }
+        Self &operator=(const Self &other) = delete;
 
         inline Self &operator=(Self &&other) noexcept
         {
@@ -71,7 +63,7 @@ namespace puzzle
 
         _T *Move() noexcept
         {
-            _T ptr{this->ptr_};
+            _T *ptr{this->ptr_};
             this->ptr_ = nullptr;
             return ptr;
         }

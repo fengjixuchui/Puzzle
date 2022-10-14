@@ -14,7 +14,7 @@ namespace puzzle
         using Self = puzzle::ITransientServiceProvider<_T>;
    
         
-        virtual void *DoProvide(puzzle::IServiceCollection *services,const std::type_info &type,char *buffer)
+        inline virtual void *DoProvide(puzzle::IServiceCollection *services,const std::type_info &type,char *buffer)
         {
             (void)services;
             if(this->CheckType(type))

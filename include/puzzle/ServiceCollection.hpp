@@ -10,7 +10,7 @@
 #include "IServiceCollection.hpp"
 #include "ProviderNotFoundError.hpp"
 #include "ProviderExistError.hpp"
-#include "TransientServiceProvider.hpp"
+#include "TransientObjectProvider.hpp"
 
 namespace puzzle
 {
@@ -92,7 +92,15 @@ namespace puzzle
             return *this;
         }
     
-        Self &operator=(Self &&other) noexcept = default;
+        inline Self &operator=(Self &&other) noexcept
+        {
+            if(this != std::addressof(other))
+            {
+                this->providers_ = std::move(other.providers_);
+                this->services_ = std::move(other.services_);
+            }
+            return *this;
+        }
     
         ~ServiceCollection() noexcept
         {
@@ -149,7 +157,7 @@ namespace puzzle
         template<typename _T>
         inline Self &AddTransient()
         {
-            return this->AddProvider<_T,puzzle::TransientServiceProvider<_T>>(*this);
+            return this->AddProvider<_T,puzzle::TransientObjectProvider<_T>>(*this);
         }
     };
 }

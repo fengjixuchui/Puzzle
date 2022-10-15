@@ -15,18 +15,22 @@ namespace puzzle
         using Self = puzzle::PlaceHolder;
 
         puzzle::IServiceBuilder *builder_;
+        puzzle::IServiceCollection *services_;
     public:
 
-        explicit PlaceHolder(puzzle::IServiceBuilder *builder)
+        explicit PlaceHolder(puzzle::IServiceBuilder *builder,puzzle::IServiceCollection *services)
             :builder_(builder)
+            ,services_(services)
         {}
 
         PlaceHolder(const Self &other) noexcept = default;
 
         PlaceHolder(Self &&other) noexcept
             :builder_(other.builder_)
+            ,services_(other.services_)
         {
             other.builder_ = nullptr;
+            other.services_ = nullptr;
         }
 
         inline Self &operator=(const Self &other)
@@ -45,6 +49,8 @@ namespace puzzle
             {
                 this->builder_ = other.builder_;
                 other.builder_ = nullptr;
+                this->services_ = other.services_;
+                other.services_ = nullptr;
             }
             return *this;
         }
@@ -59,7 +65,8 @@ namespace puzzle
         template<typename _T>
         inline operator _T() const
         {
-            return this->builder_->BuildService<_T>();
+            assert(this->services_ != nullptr);
+            return this->builder_->BuildService<_T>(*this->services_);
         }
 
         inline operator puzzle::IServiceBuilder*() const noexcept

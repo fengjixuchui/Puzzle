@@ -19,9 +19,9 @@ namespace puzzle
     {
     private:
         template<typename _T>
-        static puzzle::PlaceHolder MakePlaceHolder(puzzle::IServiceBuilder *builder) noexcept
+        static puzzle::PlaceHolder MakePlaceHolder(puzzle::IServiceBuilder *builder,puzzle::IServiceCollection *services) noexcept
         {
-            return puzzle::PlaceHolder{builder};
+            return puzzle::PlaceHolder{builder,services};
         }
 
         template<typename _Check = decltype(_T{puzzle::InjectTag,std::declval<_Types>()...})>
@@ -37,40 +37,40 @@ namespace puzzle
         }
 
         template<typename _U = _T,typename _Check = decltype(_T{puzzle::InjectTag,std::declval<_Types>()...})>
-        static _U InternalConstructService(puzzle::IServiceBuilder *builder,int)
+        static _U InternalConstructService(puzzle::IServiceBuilder *builder,puzzle::IServiceCollection *services,int)
         {
-            return _U{puzzle::InjectTag,MakePlaceHolder<_Types>(builder)...};
+            return _U{puzzle::InjectTag,MakePlaceHolder<_Types>(builder,services)...};
         }
 
         template<typename _U = _T,typename _Check = void>
-        static _U InternalConstructService(puzzle::IServiceBuilder *builder,...)
+        static _U InternalConstructService(puzzle::IServiceBuilder *builder,puzzle::IServiceCollection *services,...)
         {
-            return ServiceConstructor<_U,_Types...,puzzle::PlaceHolder>::ConstructService(builder);
+            return ServiceConstructor<_U,_Types...,puzzle::PlaceHolder>::ConstructService(builder,services);
         }
 
         template<typename _U = _T,typename _Check = decltype(_T{puzzle::InjectTag,std::declval<_Types>()...})>
-        static _U *InternalConstructServicePtr(puzzle::IServiceBuilder *builder,int)
+        static _U *InternalConstructServicePtr(puzzle::IServiceBuilder *builder,puzzle::IServiceCollection *services,int)
         {
-            return new _U{puzzle::InjectTag,MakePlaceHolder<_Types>(builder)...};
+            return new _U{puzzle::InjectTag,MakePlaceHolder<_Types>(builder,services)...};
         }
 
         template<typename _U = _T,typename _Check = void>
-        static _U *InternalConstructServicePtr(puzzle::IServiceBuilder *builder,...)
+        static _U *InternalConstructServicePtr(puzzle::IServiceBuilder *builder,puzzle::IServiceCollection *services,...)
         {
-            return ServiceConstructor<_U,_Types...,puzzle::PlaceHolder>::ConstructServicePtr(builder);
+            return ServiceConstructor<_U,_Types...,puzzle::PlaceHolder>::ConstructServicePtr(builder,services);
         }
     public:
 
         template<typename _U = _T>
-        static _U ConstructService(puzzle::IServiceBuilder *builder)
+        static _U ConstructService(puzzle::IServiceBuilder *builder,puzzle::IServiceCollection *services)
         {
-            return InternalConstructService(builder,0);
+            return InternalConstructService(builder,services,0);
         }
 
         template<typename _U = _T>
-        static _U *ConstructServicePtr(puzzle::IServiceBuilder *builder)
+        static _U *ConstructServicePtr(puzzle::IServiceBuilder *builder,puzzle::IServiceCollection *services)
         {
-            return InternalConstructServicePtr(builder,0);
+            return InternalConstructServicePtr(builder,services,0);
         }
 
         static constexpr std::size_t ParameterCount{ServiceConstructor<_T,_Types...>::InternalGetParameterCount(0)};
@@ -94,41 +94,41 @@ namespace puzzle
         }
 
         template<typename _U = _T,typename _Check = decltype(_T{puzzle::InjectTag})>
-        static _U InternalConstructService(puzzle::IServiceBuilder *builder,int)
+        static _U InternalConstructService(puzzle::IServiceBuilder *builder,puzzle::IServiceCollection *services,int)
         {
             return _U{puzzle::InjectTag};
         }
 
         template<typename _U = _T,typename _Check = void>
-        static _U InternalConstructService(puzzle::IServiceBuilder *builder,...)
+        static _U InternalConstructService(puzzle::IServiceBuilder *builder,puzzle::IServiceCollection *services,...)
         {
-            return ServiceConstructor<_U,puzzle::PlaceHolder>::ConstructService(builder);
+            return ServiceConstructor<_U,puzzle::PlaceHolder>::ConstructService(builder,services);
         }
 
         template<typename _U = _T,typename _Check = decltype(_T{puzzle::InjectTag})>
-        static _U *InternalConstructServicePtr(puzzle::IServiceBuilder *builder,int)
+        static _U *InternalConstructServicePtr(puzzle::IServiceBuilder *builder,puzzle::IServiceCollection *services,int)
         {
             return new _U{puzzle::InjectTag};
         }
 
         template<typename _U = _T,typename _Check = void>
-        static _U *InternalConstructServicePtr(puzzle::IServiceBuilder *builder,...)
+        static _U *InternalConstructServicePtr(puzzle::IServiceBuilder *builder,puzzle::IServiceCollection *services,...)
         {
-            return ServiceConstructor<_U,puzzle::PlaceHolder>::ConstructServicePtr(builder);
+            return ServiceConstructor<_U,puzzle::PlaceHolder>::ConstructServicePtr(builder,services);
         }
 
     public:
 
         template<typename _U = _T>
-        static _U ConstructService(puzzle::IServiceBuilder *builder)
+        static _U ConstructService(puzzle::IServiceBuilder *builder,puzzle::IServiceCollection *services)
         {
-            return InternalConstructService(builder,0);
+            return InternalConstructService(builder,services,0);
         }
 
         template<typename _U = _T>
-        static _U *ConstructServicePtr(puzzle::IServiceBuilder *builder)
+        static _U *ConstructServicePtr(puzzle::IServiceBuilder *builder,puzzle::IServiceCollection *services)
         {
-            return InternalConstructServicePtr(builder,0);
+            return InternalConstructServicePtr(builder,services,0);
         }
 
         static constexpr std::size_t ParameterCount{ServiceConstructor<_T>::InternalGetParameterCount(0)};

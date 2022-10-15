@@ -7,13 +7,15 @@
 
 namespace puzzle
 {
+    class IServiceCollection;
+
     class IServiceBuilder
     {
     private:
         using Self = puzzle::IServiceBuilder;
     protected:
 
-        virtual void *DoBuildService(const std::type_info &type,char *buffer) = 0;
+        virtual void *DoBuildService(puzzle::IServiceCollection *services,const std::type_info &type,char *buffer) = 0;
     public:
     
         IServiceBuilder() noexcept = default;
@@ -29,10 +31,10 @@ namespace puzzle
         virtual ~IServiceBuilder() noexcept = default;
 
         template<typename _T>
-        inline _T BuildService()
+        inline _T BuildService(puzzle::IServiceCollection &services)
         {
             char buf[sizeof(_T)] = {0};
-            _T *p{reinterpret_cast<_T*>(this->DoBuildService(typeid(_T),buf))};
+            _T *p{reinterpret_cast<_T*>(this->DoBuildService(&services,typeid(_T),buf))};
             _T obj{std::move(*p)};
             p->~_T();
             return obj;

@@ -25,7 +25,7 @@ namespace puzzle
         ProviderMap providers_;
         ServiceMap services_;
 
-        inline void *DoBuildService(puzzle::IServiceCollection *services,const std::type_info &type,char *buffer)
+        inline virtual void *DoBuildService(puzzle::IServiceCollection *services,const std::type_info &type,char *buffer) override
         {
             puzzle::IServiceObject *service{services->GetService(type)};
             if(service != nullptr)
@@ -39,7 +39,6 @@ namespace puzzle
             }
             throw puzzle::ProviderNotFoundError{};
         }
-    protected:
 
         inline virtual void DoSetService(std::type_index index,puzzle::IServiceObject *service) override
         {
@@ -67,11 +66,7 @@ namespace puzzle
                 delete begin->second;
             }   
         }
-
-        inline virtual void *DoBuildService(const std::type_info &type,char *buffer) override
-        {
-            return this->DoBuildService(this,type,buffer);
-        }
+    protected:
     public:
     
         ServiceCollection()
@@ -116,18 +111,14 @@ namespace puzzle
         template<typename _T>
         inline _T BuildService(puzzle::IServiceCollection &service)
         {
-            char buf[sizeof(_T)] = {0};
-            _T *p{reinterpret_cast<_T>(this->DoBuildService(&service,typeid(_T),buf))};
-            _T obj{std::move(*p)};
-            p->~_T();
-            return obj;
+            puzzle::IServiceBuilder *builder{this};
+            return builder->BuildService<_T>(service);
         }
 
         template<typename _T>
         inline _T BuildService()
         {
-            puzzle::IServiceBuilder *builder{this};
-            return builder->BuildService<_T>();
+            return this->BuildService<_T>(*this);
         }
 
         template<typename _T,typename _Provider,typename ..._Args

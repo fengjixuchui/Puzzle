@@ -15,9 +15,9 @@ namespace puzzle
 
         puzzle::IServiceBuilder *builder_;
 
-        inline virtual _T *DoProvide(_T *buffer) override
+        inline virtual _T *DoProvide(puzzle::IServiceCollection *services,_T *buffer) override
         {
-            return ::new(buffer) _T{puzzle::ServiceConstructor<_T>::ConstructService(this->builder_)};
+            return ::new(buffer) _T{puzzle::ServiceConstructor<_T>::ConstructService(this->builder_,services)};
         }
     public:
 

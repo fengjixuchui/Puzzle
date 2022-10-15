@@ -16,9 +16,9 @@ namespace puzzle
     
         puzzle::IServiceBuilder *builder_;
 
-        inline virtual puzzle::TransientPtr<_Interface> *DoProvide(puzzle::TransientPtr<_Interface> *buffer) override
+        inline virtual puzzle::TransientPtr<_Interface> *DoProvide(puzzle::IServiceCollection *services,puzzle::TransientPtr<_Interface> *buffer) override
         {
-            _Interface *p{puzzle::ServiceConstructor<_Impl>::ConstructServicePtr(this->builder_)};
+            _Interface *p{puzzle::ServiceConstructor<_Impl>::ConstructServicePtr(this->builder_,services)};
             if(!p)
             {
                 throw std::bad_alloc{};

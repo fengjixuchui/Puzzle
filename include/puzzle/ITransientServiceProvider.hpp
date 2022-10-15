@@ -12,21 +12,19 @@ namespace puzzle
     {
     private:
         using Self = puzzle::ITransientServiceProvider<_T>;
-   
         
         inline virtual void *DoProvide(puzzle::IServiceCollection *services,const std::type_info &type,char *buffer)
         {
-            (void)services;
             if(this->CheckType(type))
             {
                 _T *buf{reinterpret_cast<_T*>(buffer)};
-                return this->DoProvide(buf);
+                return this->DoProvide(services,buf);
             }
             throw puzzle::ProviderTypeError{};
         }
     protected:
 
-        virtual _T *DoProvide(_T *buffer) = 0;
+        virtual _T *DoProvide(puzzle::IServiceCollection *services,_T *buffer) = 0;
     public:
     
         ITransientServiceProvider() noexcept = default;

@@ -14,7 +14,7 @@ namespace puzzle
     
         _T value_;
     protected:
-        virtual void *DoGetValue(const std::type_info &type) const override
+        virtual void *DoGetValue() const override
         {
             _T *ptr{const_cast<_T*>(&this->value_)};
             return ptr;

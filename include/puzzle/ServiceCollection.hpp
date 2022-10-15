@@ -14,6 +14,9 @@
 #include "TransientInterfaceProvider.hpp"
 #include "SingletonServiceProvider.hpp"
 #include "ScopedServiceProvider.hpp"
+#include "CustomizedTransientServiceProvider.hpp"
+#include "CustomizedSingletionServiceProvider.hpp"
+#include "CustomizedScopedServiceProvider.hpp"
 
 namespace puzzle
 {
@@ -32,7 +35,7 @@ namespace puzzle
             puzzle::IServiceObject *service{services->GetService(type)};
             if(service != nullptr)
             {
-                return ::new(buffer) void *{service->GetValue(type)};
+                return ::new(buffer) void*{service->GetValue()};
             }
             auto ite = this->providers_.find(std::type_index{type});
             if(ite != this->providers_.end())
@@ -164,10 +167,22 @@ namespace puzzle
             return this->AddProvider<_T,puzzle::TransientObjectProvider<_T>>(*this);
         }
 
+        template<typename _T>
+        inline Self &AddTransient(std::function<_T(puzzle::IServiceCollection*)> func)
+        {
+            return this->AddProvider<_T,puzzle::CustomizedTransientServiceProvider<_T>>(std::move(func));
+        }
+
         template<typename _Interface,typename _Impl,std::size_t _Check = puzzle::ServiceConstructor<_Impl>::ParameterCount>
         inline Self &AddTransient()
         {
             return this->AddProvider<puzzle::TransientPtr<_Interface>,puzzle::TransientInterfaceProvider<_Interface,_Impl>>(*this);
+        }
+
+        template<typename _Interface,typename _Impl>
+        inline Self &AddTransient(std::function<puzzle::TransientPtr<_Interface>(puzzle::IServiceCollection*)> func)
+        {
+            return this->AddProvider<puzzle::TransientPtr<_Interface>,puzzle::CustomizedTransientServiceProvider<puzzle::TransientPtr<_Interface>>>(std::move(func));
         }
 
         template<typename _T,std::size_t _Check = puzzle::ServiceConstructor<_T>::ParameterCount>
@@ -176,10 +191,22 @@ namespace puzzle
             return this->AddProvider<puzzle::PersistentPtr<_T>,puzzle::SingletonServiceProvider<_T>>(*this);
         }
 
+        template<typename _T>
+        inline Self &AddSingletion(std::function<_T*(puzzle::IServiceCollection*,char*)> func)
+        {
+            return this->AddProvider<puzzle::PersistentPtr<_T>,puzzle::CustomizedSingletionServiceProvider<_T>>(std::move(func));
+        }
+
         template<typename _Interface,typename _Impl,std::size_t _Check = puzzle::ServiceConstructor<_Impl>::ParameterCount>
         inline Self &AddSingletion()
         {
             return this->AddProvider<puzzle::PersistentPtr<_Interface>,puzzle::SingletonServiceProvider<_Interface,_Impl>>(*this);
+        }
+
+        template<typename _Interface,typename _Impl>
+        inline Self &AddSingletion(std::function<_Impl*(puzzle::IServiceCollection*,char*)> func)
+        {
+            return this->AddProvider<puzzle::PersistentPtr<_Interface>,puzzle::CustomizedSingletionServiceProvider<_Interface,_Impl>>(std::move(func));
         }
 
         template<typename _T,std::size_t _Check = puzzle::ServiceConstructor<_T>::ParameterCount>
@@ -188,10 +215,22 @@ namespace puzzle
             return this->AddProvider<puzzle::PersistentPtr<_T>,puzzle::ScopedServiceProvider<_T>>(*this);
         }
 
+        template<typename _T>
+        inline Self &AddScoped(std::function<_T(puzzle::IServiceCollection*)> func)
+        {
+            return this->AddProvider<puzzle::PersistentPtr<_T>,puzzle::CustomizedScopedServiceProvider<_T>>(std::move(func));
+        }
+
         template<typename _Interface,typename _Impl,std::size_t _Check = puzzle::ServiceConstructor<_Impl>::ParameterCount>
         inline Self &AddScoped()
         {
             return this->AddProvider<puzzle::PersistentPtr<_Interface>,puzzle::ScopedServiceProvider<_Interface,_Impl>>(*this);
+        }
+
+        template<typename _Interface,typename _Impl>
+        inline Self &AddScoped(std::function<_Impl(puzzle::IServiceCollection*)> func)
+        {
+            return this->AddProvider<puzzle::PersistentPtr<_Interface>,puzzle::CustomizedScopedServiceProvider<_Interface,_Impl>>(std::move(func));
         }
     };
 }

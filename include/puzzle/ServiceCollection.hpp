@@ -13,6 +13,7 @@
 #include "TransientObjectProvider.hpp"
 #include "TransientInterfaceProvider.hpp"
 #include "SingletonServiceProvider.hpp"
+#include "ScopedServiceProvider.hpp"
 
 namespace puzzle
 {
@@ -20,8 +21,8 @@ namespace puzzle
     {
     private:
         using Self = puzzle::ServiceCollection;
-        using ProviderMap = std::unordered_map<std::type_index,puzzle::IServiceProvider*>;
-        using ServiceMap = std::unordered_map<std::type_index,puzzle::IServiceObject*>;
+        using ProviderMap = std::unordered_map<std::type_index,puzzle::IServiceProvider *>;
+        using ServiceMap = std::unordered_map<std::type_index,puzzle::IServiceObject *>;
 
         ProviderMap providers_;
         ServiceMap services_;
@@ -31,7 +32,7 @@ namespace puzzle
             puzzle::IServiceObject *service{services->GetService(type)};
             if(service != nullptr)
             {
-                return service->GetValue(type);
+                return ::new(buffer) void *{service->GetValue(type)};
             }
             auto ite = this->providers_.find(std::type_index{type});
             if(ite != this->providers_.end())
@@ -56,57 +57,65 @@ namespace puzzle
             return nullptr;
         }
 
-        inline virtual void DoClear() noexcept override
+        inline virtual void DoClearServices() noexcept override
         {
             for(auto begin = this->services_.begin(),end = this->services_.end(); begin != end; ++begin)
             {
                 delete begin->second;
-            }   
+            }
+        }
+
+        inline void DoClearProviders() noexcept
+        {
             for(auto begin = this->providers_.begin(),end = this->providers_.end(); begin != end; ++begin)
             {
                 delete begin->second;
-            }   
+            }
         }
     protected:
     public:
-    
+
         ServiceCollection()
             :providers_()
             ,services_()
         {}
-    
-        ServiceCollection(const Self &other) = default;
-    
+
+        ServiceCollection(const Self &other) = delete;
+
         ServiceCollection(Self &&other) noexcept = default;
-    
-        inline Self &operator=(const Self &other)
-        {
-            if(this != std::addressof(other))
-            {
-                Self tmp{other};
-                std::swap(tmp,*this);
-            }
-            return *this;
-        }
-    
+
+        Self &operator=(const Self &other) = delete;
+
         inline Self &operator=(Self &&other) noexcept
         {
             if(this != std::addressof(other))
             {
+                this->Clear();
                 this->providers_ = std::move(other.providers_);
                 this->services_ = std::move(other.services_);
             }
             return *this;
         }
-    
+
         ~ServiceCollection() noexcept
         {
             this->Clear();
         }
-    
+
         inline const Self &Const() const noexcept
         {
             return *this;
+        }
+
+        inline void ClearProviders() noexcept
+        {
+            this->DoClearProviders();
+        }
+
+        inline void Clear() noexcept
+        {
+            this->DoClearProviders();
+            this->DoClearServices();
         }
 
         template<typename _T>
@@ -123,8 +132,8 @@ namespace puzzle
         }
 
         template<typename _T,typename _Provider,typename ..._Args
-                    ,typename _CheckBase = std::enable_if<std::is_base_of<puzzle::IServiceProvider,_Provider>::value>::type
-                    ,typename _Check = decltype(_Provider{std::declval<_Args>()...})>
+            ,typename _CheckBase = std::enable_if<std::is_base_of<puzzle::IServiceProvider,_Provider>::value>::type
+            ,typename _Check = decltype(_Provider{std::declval<_Args>()...})>
         inline Self &AddProvider(_Args &&...args)
         {
             puzzle::IServiceProvider *provider{new _Provider{std::forward<_Args>(args)...}};
@@ -142,7 +151,7 @@ namespace puzzle
                 }
                 return *this;
             }
-            catch(const std::exception&)
+            catch(const std::exception &)
             {
                 throw;
             }
@@ -167,10 +176,22 @@ namespace puzzle
             return this->AddProvider<puzzle::PersistentPtr<_T>,puzzle::SingletonServiceProvider<_T>>(*this);
         }
 
-       template<typename _Interface,typename _Impl,std::size_t _Check = puzzle::ServiceConstructor<_Impl>::ParameterCount>
+        template<typename _Interface,typename _Impl,std::size_t _Check = puzzle::ServiceConstructor<_Impl>::ParameterCount>
         inline Self &AddSingletion()
         {
             return this->AddProvider<puzzle::PersistentPtr<_Interface>,puzzle::SingletonServiceProvider<_Interface,_Impl>>(*this);
+        }
+
+        template<typename _T,std::size_t _Check = puzzle::ServiceConstructor<_T>::ParameterCount>
+        inline Self &AddScoped()
+        {
+            return this->AddProvider<puzzle::PersistentPtr<_T>,puzzle::ScopedServiceProvider<_T>>(*this);
+        }
+
+        template<typename _Interface,typename _Impl,std::size_t _Check = puzzle::ServiceConstructor<_Impl>::ParameterCount>
+        inline Self &AddScoped()
+        {
+            return this->AddProvider<puzzle::PersistentPtr<_Interface>,puzzle::ScopedServiceProvider<_Interface,_Impl>>(*this);
         }
     };
 }

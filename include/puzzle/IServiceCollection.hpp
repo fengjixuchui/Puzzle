@@ -21,7 +21,7 @@ namespace puzzle
 
         virtual puzzle::IServiceObject *DoGetService(const std::type_index &index) = 0;
 
-        virtual void DoClear() noexcept = 0;
+        virtual void DoClearServices() noexcept = 0;
     public:
     
         IServiceCollection() noexcept = default;
@@ -50,14 +50,10 @@ namespace puzzle
         }
 
         template<typename _T>
-        inline _T *GetService()
+        inline puzzle::IServiceObject *GetService()
         {
             puzzle::IServiceObject *service{this->DoGetService(std::type_index{typeid(_T)})};
-            if(service)
-            {
-                return service->GetValue();
-            }
-            return nullptr;
+            return service;
         }
 
         inline puzzle::IServiceObject *GetService(const std::type_info &type)
@@ -65,9 +61,9 @@ namespace puzzle
             return this->DoGetService(std::type_index{type});
         }
 
-        inline void Clear() noexcept
+        inline void ClearServices() noexcept
         {
-            this->DoClear();
+            this->DoClearServices();
         }
     };
 }

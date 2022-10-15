@@ -2,45 +2,91 @@
 #ifndef _PUZZLE_SERVICESCOPE_HPP
 #define _PUZZLE_SERVICESCOPE_HPP
 
+#include <cassert>
 #include <typeindex>
 #include <unordered_map>
 
+#include "IServiceBuilder.hpp"
 #include "IServiceCollection.hpp"
-#include "ServiceCollection.hpp"
 
 namespace puzzle
 {
-    class ServiceScope
+    class ServiceScope:puzzle::IServiceCollection
     {
     private:
         using Self = puzzle::ServiceScope;
-    
-        puzzle::ServiceCollection *services_;
+        using ServiceMap = std::unordered_map<std::type_index,puzzle::IServiceObject *>;
+
+        puzzle::IServiceBuilder *builder_;
+        ServiceMap services_;
+
+        inline virtual void DoSetService(std::type_index index,puzzle::IServiceObject *service) override
+        {
+            this->services_.emplace(index,std::move(service));
+        }
+
+        inline virtual puzzle::IServiceObject *DoGetService(const std::type_index &index) override
+        {
+            auto ite{this->services_.find(index)};
+            if(ite != this->services_.end())
+            {
+                return ite->second;
+            }
+            return nullptr;
+        }
+
+        inline virtual void DoClearServices() noexcept override
+        {
+            for(auto begin = this->services_.begin(),end = this->services_.end(); begin != end; ++begin)
+            {
+                delete begin->second;
+            }
+        }
     public:
-    
-        ServiceScope();
-    
-        ServiceScope(const Self &other);
-    
-        ServiceScope(Self &&other) noexcept;
-    
-        inline Self &operator=(const Self &other)
+
+        ServiceScope(puzzle::IServiceBuilder &builder)
+            :builder_(&builder)
+            ,services_()
+        {}
+
+        ServiceScope(const Self &other) = delete;
+
+        ServiceScope(Self &&other) noexcept
+            :builder_(other.builder_)
+            ,services_(std::move(other.services_))
+        {
+            other.builder_ = nullptr;
+        }
+
+        Self &operator=(const Self &other) = delete;
+
+        inline Self &operator=(Self &&other) noexcept
         {
             if(this != std::addressof(other))
             {
-                Self tmp{other};
-                std::swap(tmp,*this);
+                this->ClearServices();
+                this->builder_ = other.builder_;
+                other.builder_ = nullptr;
+                this->services_ = std::move(other.services_);
             }
             return *this;
         }
-    
-        Self &operator=(Self &&other) noexcept;
-    
-        ~ServiceScope() noexcept = default;
-    
+
+        virtual ~ServiceScope() noexcept
+        {
+            this->ClearServices();
+        }
+
         inline const Self &Const() const noexcept
         {
             return *this;
+        }
+
+        template<typename _T>
+        _T BuildService()
+        {
+            assert(this->builder_ != nullptr);
+            return this->builder_->BuildService<_T>(*this);
         }
     };
 }

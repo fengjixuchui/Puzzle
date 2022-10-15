@@ -12,7 +12,7 @@ namespace puzzle
         using Self = puzzle::IServiceObject;
     protected:
 
-        virtual void *DoGetValue(const std::type_info &type) const;
+        virtual void *DoGetValue(const std::type_info &type) const = 0;
     public:
     
         IServiceObject() noexcept = default;
@@ -36,7 +36,7 @@ namespace puzzle
         inline _T *GetValue() const
         {
             _T *ptr{reinterpret_cast<_T*>(this->DoGetValue(typeid(_T)))};
-            return *ptr;
+            return ptr;
         }
     };
 }

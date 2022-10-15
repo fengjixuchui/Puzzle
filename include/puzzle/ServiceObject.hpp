@@ -10,7 +10,7 @@ namespace puzzle
     class ServiceObject:public puzzle::IServiceObject
     {
     private:
-        using Self = puzzle::ServiceObject;
+        using Self = puzzle::ServiceObject<_T>;
     
         _T value_;
     protected:

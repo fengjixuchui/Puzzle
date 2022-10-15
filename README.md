@@ -1,2 +1,2 @@
 # Puzzle
-A cpp dependency inject library
+Puzzle is a header-only cpp dependency inject library.

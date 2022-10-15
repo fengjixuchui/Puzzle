@@ -83,10 +83,22 @@ namespace puzzle
         }
 
         template<typename _T>
-        _T BuildService()
+        inline _T BuildService()
         {
             assert(this->builder_ != nullptr);
             return this->builder_->BuildService<_T>(*this);
+        }
+
+        template<typename _T>
+        inline puzzle::TransientPtr<_T> BuildTransient()
+        {
+            return this->BuildService<puzzle::TransientPtr<_T>>();
+        }
+
+        template<typename _T>
+        inline puzzle::PersistentPtr<_T> BuildPersistent()
+        {
+            return this->BuildService<puzzle::PersistentPtr<_T>>();
         }
     };
 }

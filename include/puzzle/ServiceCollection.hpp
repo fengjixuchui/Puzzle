@@ -134,6 +134,18 @@ namespace puzzle
             return this->BuildService<_T>(*this);
         }
 
+        template<typename _T>
+        inline puzzle::TransientPtr<_T> BuildTransient()
+        {
+            return this->BuildService<puzzle::TransientPtr<_T>>();
+        }
+
+        template<typename _T>
+        inline puzzle::PersistentPtr<_T> BuildPersistent()
+        {
+            return this->BuildService<puzzle::PersistentPtr<_T>>();
+        }
+
         template<typename _T,typename _Provider,typename ..._Args
             ,typename _CheckBase = std::enable_if<std::is_base_of<puzzle::IServiceProvider,_Provider>::value>::type
             ,typename _Check = decltype(_Provider{std::declval<_Args>()...})>

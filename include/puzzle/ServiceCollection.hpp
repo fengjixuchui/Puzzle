@@ -66,6 +66,7 @@ namespace puzzle
             {
                 delete begin->second;
             }
+            this->services_.clear();
         }
 
         inline void DoClearProviders() noexcept
@@ -74,6 +75,7 @@ namespace puzzle
             {
                 delete begin->second;
             }
+            this->providers_.clear();
         }
     protected:
     public:

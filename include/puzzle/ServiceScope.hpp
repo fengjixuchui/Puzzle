@@ -41,6 +41,7 @@ namespace puzzle
             {
                 delete begin->second;
             }
+            this->services_.clear();
         }
     public:
 

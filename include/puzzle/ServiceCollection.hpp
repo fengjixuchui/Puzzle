@@ -147,7 +147,7 @@ namespace puzzle
         }
 
         template<typename _T,typename _Provider,typename ..._Args
-            ,typename _CheckBase = std::enable_if<std::is_base_of<puzzle::IServiceProvider,_Provider>::value>::type
+            ,typename _CheckBase = typename std::enable_if<std::is_base_of<puzzle::IServiceProvider,_Provider>::value>::type
             ,typename _Check = decltype(_Provider{std::declval<_Args>()...})>
         inline Self &AddProvider(_Args &&...args)
         {

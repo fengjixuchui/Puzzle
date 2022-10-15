@@ -37,7 +37,7 @@ namespace puzzle
         virtual ~IServiceCollection() noexcept = default;
 
         template<typename _T,typename _Impl,typename ..._Args
-                            ,typename _CheckBase = std::enable_if<std::is_base_of<puzzle::IServiceObject,_Impl>::value>::type
+                            ,typename _CheckBase = typename std::enable_if<std::is_base_of<puzzle::IServiceObject,_Impl>::value>::type
                             ,typename _Check = decltype(_Impl{std::declval<_Args>()...})>
         inline void SetService(_Args &&...args)
         {

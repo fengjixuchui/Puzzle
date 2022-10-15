@@ -24,7 +24,8 @@ namespace puzzle
             assert(services->GetService<puzzle::PersistentPtr<_Interface>>() == nullptr);
             assert(this->func_);
             services->SetService<puzzle::PersistentPtr<_Interface>,puzzle::ServiceObject<_Impl>>(this->func_(services));
-            return services->GetService<puzzle::PersistentPtr<_Interface>>()->GetValue<_Interface>();
+            puzzle::IServiceObject *service{services->GetService<puzzle::PersistentPtr<_Interface>>()};
+            return service->GetValue<_Interface>();
         }
     public:
     

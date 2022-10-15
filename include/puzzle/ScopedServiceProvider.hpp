@@ -20,7 +20,8 @@ namespace puzzle
         {
             assert(services->GetService<puzzle::PersistentPtr<_Interface>>() == nullptr);
             services->SetService<puzzle::PersistentPtr<_Interface>,puzzle::ServiceObject<_Impl>>(ServiceConstructor<_Impl>::ConstructService(this->builder_,services));
-            return services->GetService<puzzle::PersistentPtr<_Interface>>()->GetValue<_Impl>();
+            puzzle::IServiceObject *service{services->GetService<puzzle::PersistentPtr<_Interface>>()};
+            return service->GetValue<_Impl>();
         }
     public:
     

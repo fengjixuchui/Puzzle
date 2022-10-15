@@ -18,7 +18,7 @@ namespace puzzle
     struct ServiceConstructor
     {
     private:
-        template<typename _T>
+        template<typename _U>
         static puzzle::PlaceHolder MakePlaceHolder(puzzle::IServiceBuilder *builder,puzzle::IServiceCollection *services) noexcept
         {
             return puzzle::PlaceHolder{builder,services};
@@ -36,7 +36,7 @@ namespace puzzle
             return ServiceConstructor<_T,_Types...,puzzle::PlaceHolder>::ParameterCount;
         }
 
-        template<typename _U = _T,typename _Check = decltype(_T{puzzle::InjectTag,std::declval<_Types>()...})>
+        template<typename _U = _T,typename _Check = decltype(_U{puzzle::InjectTag,std::declval<_Types>()...})>
         static _U InternalConstructService(puzzle::IServiceBuilder *builder,puzzle::IServiceCollection *services,int)
         {
             return _U{puzzle::InjectTag,MakePlaceHolder<_Types>(builder,services)...};
@@ -48,7 +48,7 @@ namespace puzzle
             return ServiceConstructor<_U,_Types...,puzzle::PlaceHolder>::ConstructService(builder,services);
         }
 
-        template<typename _U = _T,typename _Check = decltype(_T{puzzle::InjectTag,std::declval<_Types>()...})>
+        template<typename _U = _T,typename _Check = decltype(_U{puzzle::InjectTag,std::declval<_Types>()...})>
         static _U *InternalConstructServicePtr(puzzle::IServiceBuilder *builder,puzzle::IServiceCollection *services,int)
         {
             return new _U{puzzle::InjectTag,MakePlaceHolder<_Types>(builder,services)...};
@@ -93,7 +93,7 @@ namespace puzzle
             return ServiceConstructor<_T,puzzle::PlaceHolder>::ParameterCount;
         }
 
-        template<typename _U = _T,typename _Check = decltype(_T{puzzle::InjectTag})>
+        template<typename _U = _T,typename _Check = decltype(_U{puzzle::InjectTag})>
         static _U InternalConstructService(puzzle::IServiceBuilder *builder,puzzle::IServiceCollection *services,int)
         {
             return _U{puzzle::InjectTag};
@@ -105,7 +105,7 @@ namespace puzzle
             return ServiceConstructor<_U,puzzle::PlaceHolder>::ConstructService(builder,services);
         }
 
-        template<typename _U = _T,typename _Check = decltype(_T{puzzle::InjectTag})>
+        template<typename _U = _T,typename _Check = decltype(_U{puzzle::InjectTag})>
         static _U *InternalConstructServicePtr(puzzle::IServiceBuilder *builder,puzzle::IServiceCollection *services,int)
         {
             return new _U{puzzle::InjectTag};

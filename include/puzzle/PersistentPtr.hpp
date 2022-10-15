@@ -10,7 +10,7 @@ namespace puzzle
     class PersistentPtr
     {
     private:
-        using Self = PersistentPtr;
+        using Self = puzzle::PersistentPtr<_T>;
     
         _T *ptr_;
     public:
@@ -54,6 +54,11 @@ namespace puzzle
         }
 
         inline _T *operator->() const noexcept
+        {
+            return this->ptr_;
+        }
+
+        inline _T *Get() const noexcept
         {
             return this->ptr_;
         }

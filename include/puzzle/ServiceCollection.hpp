@@ -12,6 +12,7 @@
 #include "ProviderExistError.hpp"
 #include "TransientObjectProvider.hpp"
 #include "TransientInterfaceProvider.hpp"
+#include "SingletonServiceProvider.hpp"
 
 namespace puzzle
 {
@@ -148,16 +149,28 @@ namespace puzzle
             delete provider;
         }
 
-        template<typename _T>
+        template<typename _T,std::size_t _Check = puzzle::ServiceConstructor<_T>::ParameterCount>
         inline Self &AddTransient()
         {
             return this->AddProvider<_T,puzzle::TransientObjectProvider<_T>>(*this);
         }
 
-        template<typename _Interface,typename _Impl>
+        template<typename _Interface,typename _Impl,std::size_t _Check = puzzle::ServiceConstructor<_Impl>::ParameterCount>
         inline Self &AddTransient()
         {
             return this->AddProvider<puzzle::TransientPtr<_Interface>,puzzle::TransientInterfaceProvider<_Interface,_Impl>>(*this);
+        }
+
+        template<typename _T,std::size_t _Check = puzzle::ServiceConstructor<_T>::ParameterCount>
+        inline Self &AddSingletion()
+        {
+            return this->AddProvider<puzzle::PersistentPtr<_T>,puzzle::SingletonServiceProvider<_T>>(*this);
+        }
+
+       template<typename _Interface,typename _Impl,std::size_t _Check = puzzle::ServiceConstructor<_Impl>::ParameterCount>
+        inline Self &AddSingletion()
+        {
+            return this->AddProvider<puzzle::PersistentPtr<_Interface>,puzzle::SingletonServiceProvider<_Interface,_Impl>>(*this);
         }
     };
 }

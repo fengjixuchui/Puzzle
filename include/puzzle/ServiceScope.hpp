@@ -5,6 +5,9 @@
 #include <typeindex>
 #include <unordered_map>
 
+#include "IServiceCollection.hpp"
+#include "ServiceCollection.hpp"
+
 namespace puzzle
 {
     class ServiceScope
@@ -12,7 +15,7 @@ namespace puzzle
     private:
         using Self = puzzle::ServiceScope;
     
-        
+        puzzle::ServiceCollection *services_;
     public:
     
         ServiceScope();

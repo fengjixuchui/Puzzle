@@ -18,7 +18,7 @@ namespace puzzle
             :Base("Provider not found")
         {}
     
-        ProviderNotFoundError(const char *msg) noexcept
+        explicit ProviderNotFoundError(const char *msg) noexcept
             :Base(msg)
         {}
     

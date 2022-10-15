@@ -18,7 +18,7 @@ namespace puzzle
             :Base("provider already exist")
         {}
     
-        ProviderExistError(const char *msg) noexcept
+        explicit ProviderExistError(const char *msg) noexcept
             :Base(msg)
         {}
     

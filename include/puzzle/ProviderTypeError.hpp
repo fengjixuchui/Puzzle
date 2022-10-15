@@ -18,7 +18,7 @@ namespace puzzle
             :Base("provider's type is incorrect")
         {}
     
-        ProviderTypeError(const char *msg) noexcept
+        explicit ProviderTypeError(const char *msg) noexcept
             :Base(msg)
         {}
     

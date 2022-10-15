@@ -44,7 +44,7 @@ namespace puzzle
         }
     public:
 
-        ServiceScope(puzzle::IServiceBuilder &builder)
+        explicit ServiceScope(puzzle::IServiceBuilder &builder)
             :builder_(&builder)
             ,services_()
         {}
